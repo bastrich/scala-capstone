@@ -30,13 +30,13 @@ object Extraction extends ExtractionInterface {
     val temperaturesSource = Source
       .fromInputStream(getClass.getResourceAsStream(temperaturesFile))
 
-    val res = temperaturesSource
+    val temperatures = temperaturesSource
       .getLines()
       .map(line => line.split(","))
-      .filterNot(observation => observation.length != 5 ||
-        observation(2).isEmpty ||
-        observation(3).isEmpty ||
-        observation(4).isEmpty
+      .filterNot(observation => observation.length != 5
+        || observation(2).isEmpty
+        || observation(3).isEmpty
+        || observation(4).isEmpty
       )
       .filter {
         case Array(stn, wban, _, _, _) => stations.contains((toInt(stn), toInt(wban)))
@@ -49,7 +49,7 @@ object Extraction extends ExtractionInterface {
 
     temperaturesSource.close()
 
-    res
+    temperatures
   }
 
   private def toInt(s: String): Int = if (s.isEmpty) 0 else s.toInt

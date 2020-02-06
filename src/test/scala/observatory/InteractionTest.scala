@@ -6,9 +6,6 @@ import observatory.Interaction.{generateTiles, pixelLocation, tile, tileLocation
 import org.junit.Assert._
 import org.junit.Test
 
-import scala.collection.mutable
-import scala.collection.concurrent
-
 
 trait InteractionTest extends MilestoneSuite {
   private val milestoneTest = namedMilestoneTest("interactive visualization", 3) _

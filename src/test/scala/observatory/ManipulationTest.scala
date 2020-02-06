@@ -1,10 +1,8 @@
 package observatory
 
-import org.junit.Test
+import observatory.Manipulation.{average, deviation, makeGrid}
 import org.junit.Assert._
-import  Manipulation.makeGrid
-import  Manipulation.average
-import  Manipulation.deviation
+import org.junit.Test
 
 trait ManipulationTest extends MilestoneSuite {
   private val milestoneTest = namedMilestoneTest("data manipulation", 4) _

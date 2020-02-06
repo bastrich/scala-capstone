@@ -3,9 +3,9 @@ package observatory
 import java.io.File
 
 import observatory.Extraction.{locateTemperatures, locationYearlyAverageRecords}
-import observatory.Interaction.{generateTiles, tile}
+import observatory.Interaction.generateTiles
 import observatory.Interaction2.{DeviationsColorScale, TemperaturesColorScale}
-import observatory.Manipulation.{deviation, average, makeGrid}
+import observatory.Manipulation.{average, deviation, makeGrid}
 import observatory.Visualization2.visualizeGrid
 
 object Main extends App {
@@ -51,10 +51,10 @@ object Main extends App {
     val deviationsGrids = YearlyAverageTemperatures
       .filter { case (year, _) => YearsToCompare.contains(year) }
       .map { case (year, temperatures) =>
-      measureTime(s"calculating deviations grid for year $year") {
-        (year, deviation(temperatures, temperatureNormals))
+        measureTime(s"calculating deviations grid for year $year") {
+          (year, deviation(temperatures, temperatureNormals))
+        }
       }
-    }
 
     generateTiles[GridLocation => Temperature](deviationsGrids.seq, { case (year, currentTile, deviationGrid) =>
       measureTime(s"generating deviation image for " +

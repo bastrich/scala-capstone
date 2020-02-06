@@ -1,6 +1,6 @@
 package observatory
 
-import com.sksamuel.scrimage.{Image, Pixel}
+import com.sksamuel.scrimage.Image
 import observatory.Visualization.{interpolateColor, predictTemperature}
 
 import scala.math._
@@ -16,10 +16,7 @@ object Interaction extends InteractionInterface {
     */
   def tileLocation(tile: Tile): Location = {
     val n = pow(2, tile.zoom)
-    val lonDeg = tile.x / n * 360.0 - 180.0
-    val latRad = atan(sinh(Pi * (1 - 2 * tile.y / n)))
-    val latDeg = toDegrees(latRad)
-    Location(latDeg, lonDeg)
+    Location(toDegrees(atan(sinh(Pi * (1 - 2 * tile.y / n)))), tile.x / n * 360.0 - 180.0)
   }
 
   def pixelLocation(imagePixelX: Int, imagePixelY: Int, tile: Tile): Location =
@@ -36,9 +33,10 @@ object Interaction extends InteractionInterface {
       TileSize,
       TileSize,
       Array.tabulate(TileSize * TileSize) { i =>
-        val pixelLoc = pixelLocation(i % TileSize, i / TileSize, tile)
-        val color = interpolateColor(colors, predictTemperature(temperatures, pixelLoc))
-        Pixel(color.red, color.green, color.blue, 127)
+        interpolateColor(
+          colors,
+          predictTemperature(temperatures, pixelLocation(i % TileSize, i / TileSize, tile))
+        ).pixel()
       }
     )
 
@@ -53,19 +51,18 @@ object Interaction extends InteractionInterface {
   def generateTiles[Data](
                            yearlyData: Iterable[(Year, Data)],
                            generateImage: (Year, Tile, Data) => Unit
-                         ): Unit = {
-    val tiles =
+                         ): Unit =
+    (
       for {
         (year, data) <- yearlyData
         zoom <- 0 to 3
         x <- 0 until pow(2, zoom).toInt
         y <- 0 until pow(2, zoom).toInt
       } yield (year, data, zoom, x, y)
-
-    tiles
+      )
       .par
       .foreach { case (year, data, zoom, x, y) =>
         generateImage(year, Tile(x, y, zoom), data)
       }
-  }
+
 }

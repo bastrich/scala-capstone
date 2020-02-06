@@ -2,10 +2,9 @@ package observatory
 
 import java.time.LocalDate
 
+import observatory.Extraction.{locateTemperatures, locationYearlyAverageRecords}
 import org.junit.Assert._
 import org.junit.Test
-import Extraction.locateTemperatures
-import Extraction.locationYearlyAverageRecords
 
 trait ExtractionTest extends MilestoneSuite {
   private val milestoneTest = namedMilestoneTest("data extraction", 1) _
@@ -36,6 +35,5 @@ trait ExtractionTest extends MilestoneSuite {
       )
     )
   }
-
 
 }

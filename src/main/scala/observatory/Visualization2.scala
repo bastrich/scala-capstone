@@ -1,6 +1,6 @@
 package observatory
 
-import com.sksamuel.scrimage.{Image, Pixel}
+import com.sksamuel.scrimage.Image
 import observatory.Interaction.pixelLocation
 import observatory.Visualization.interpolateColor
 
@@ -24,9 +24,8 @@ object Visualization2 extends Visualization2Interface {
                              d01: Temperature,
                              d10: Temperature,
                              d11: Temperature
-                           ): Temperature = {
+                           ): Temperature =
     d00 * (1 - point.x) * (1 - point.y) + d10 * point.x * (1 - point.y) + d01 * (1 - point.x) * point.y + d11 * point.x * point.y
-  }
 
   /**
     * @param grid   Grid to visualize
@@ -52,12 +51,10 @@ object Visualization2 extends Visualization2Interface {
           grid(GridLocation(pixelGridLocation.lat, pixelGridLocation.lon + 1)),
           grid(GridLocation(pixelGridLocation.lat - 1, pixelGridLocation.lon + 1))
         )
-        val color = interpolateColor(
+        interpolateColor(
           colors,
           pixelTemperature
-        )
-
-        Pixel(color.red, color.green, color.blue, 127)
+        ).pixel()
       }
     )
 }

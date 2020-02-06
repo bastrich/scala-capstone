@@ -55,7 +55,6 @@ object Manipulation extends ManipulationInterface {
     )
   }
 
-
   def gridFunction(gridArray: Array[Temperature]): GridLocation => Temperature = {
     gridLocation: GridLocation => {
       gridArray(gridIndex(gridLocation))

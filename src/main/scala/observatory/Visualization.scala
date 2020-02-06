@@ -1,15 +1,14 @@
 package observatory
 
-import com.sksamuel.scrimage.{Image, Pixel}
-
-import scala.util.control.Breaks._
+import com.sksamuel.scrimage.Image
 
 /**
   * 2nd milestone: basic visualization
   */
 object Visualization extends VisualizationInterface {
 
-  private val P = 4
+  type TemperatureBound = (Temperature, Color)
+  type TemperatureBounds = (TemperatureBound, TemperatureBound)
 
   /**
     * @param temperatures Known temperatures: pairs containing a location and the temperature at this location
@@ -40,7 +39,7 @@ object Visualization extends VisualizationInterface {
     * @param value  The value to interpolate
     * @return The color that corresponds to `value`, according to the color scale defined by `points`
     */
-  def interpolateColor(points: Iterable[(Temperature, Color)], value: Temperature): Color = {
+  def interpolateColor(points: Iterable[(Temperature, Color)], value: Temperature): Color =
     interpolateColor(
       points
         .foldLeft((points.head, points.head)) { case (bounds, possibleBound) =>
@@ -51,34 +50,31 @@ object Visualization extends VisualizationInterface {
         },
       value
     )
-  }
 
-  def updateUpperBound(actualBounds: ((Temperature, Color), (Temperature, Color)), possibleBound: (Temperature, Color), value: Temperature): ((Temperature, Color), (Temperature, Color)) = {
-    if (actualBounds._2._1 < possibleBound._1 && actualBounds._2._1 < value
-      || value < possibleBound._1 && possibleBound._1 < actualBounds._2._1) {
-      (actualBounds._1, possibleBound)
-    } else {
-      actualBounds
-    }
-  }
-
-  def updateLowerBound(actualBounds: ((Temperature, Color), (Temperature, Color)), possibleBound: (Temperature, Color), value: Temperature): ((Temperature, Color), (Temperature, Color)) = {
-    if (value < possibleBound._1 && possibleBound._1 < actualBounds._1._1
-      || actualBounds._1._1 < possibleBound._1 && possibleBound._1 < value
-      || possibleBound._1 < value && value < actualBounds._1._1) {
-      (possibleBound, actualBounds._2)
-    } else {
-      actualBounds
-    }
-  }
-
-  def interpolateColor(bounds: ((Temperature, Color), (Temperature, Color)), value: Temperature): Color = {
+  def interpolateColor(bounds: TemperatureBounds, value: Temperature): Color =
     if (value < bounds._1._1) {
       bounds._1._2
     } else if (value > bounds._2._1) {
       bounds._2._2
     } else {
       linearInterpolation(value, bounds._1._1, bounds._2._1, bounds._1._2, bounds._2._2)
+    }
+
+  def updateUpperBound(actualBounds: TemperatureBounds, possibleBound: TemperatureBound, value: Temperature): TemperatureBounds =
+    if (actualBounds._2._1 < possibleBound._1 && actualBounds._2._1 < value
+      || value < possibleBound._1 && possibleBound._1 < actualBounds._2._1) {
+      (actualBounds._1, possibleBound)
+    } else {
+      actualBounds
+    }
+
+  def updateLowerBound(actualBounds: TemperatureBounds, possibleBound: TemperatureBound, value: Temperature): TemperatureBounds = {
+    if (value < possibleBound._1 && possibleBound._1 < actualBounds._1._1
+      || actualBounds._1._1 < possibleBound._1 && possibleBound._1 < value
+      || possibleBound._1 < value && value < actualBounds._1._1) {
+      (possibleBound, actualBounds._2)
+    } else {
+      actualBounds
     }
   }
 
@@ -108,8 +104,7 @@ object Visualization extends VisualizationInterface {
       360,
       180,
       Array.tabulate(360 * 180) { i =>
-        val color = interpolateColor(colors, predictTemperature(temperatures, indexToLocation(i)))
-        Pixel(color.red, color.green, color.blue, 127)
+        interpolateColor(colors, predictTemperature(temperatures, indexToLocation(i))).pixel()
       }
     )
 

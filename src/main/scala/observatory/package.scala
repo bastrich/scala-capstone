@@ -1,6 +1,4 @@
-
-
-import scala.math.{abs, sqrt, toRadians, Pi}
+import scala.math.{Pi, abs, sqrt, toRadians}
 
 package object observatory {
   type Temperature = Double // °C, introduced in Week 1
@@ -8,8 +6,15 @@ package object observatory {
 
   val TileSize = 256
   val R = 6371
-  val acos1 = acos(1)
-  val acosMinus1 = acos(-1)
+  val acos1: Double = acos(1)
+  val acosMinus1: Double = acos(-1)
+  val TrigonometryPrecisionCoefficient = 8D //should be power of 2
+  val SinDeviations: Array[Double] = (0 to (180 * TrigonometryPrecisionCoefficient).toInt)
+    .map(degree => math.sin(toRadians(degree / TrigonometryPrecisionCoefficient)) - approxSin(degree / TrigonometryPrecisionCoefficient))
+    .toArray
+  val CosDeviations: Array[Double] = (0 to (180 * TrigonometryPrecisionCoefficient).toInt)
+    .map(degree => math.cos(toRadians(degree / TrigonometryPrecisionCoefficient - 90)) - approxCos(degree / TrigonometryPrecisionCoefficient - 90))
+    .toArray
 
   def measureTime[T](description: String)(func: => T): T = {
     println(s"Starting $description...")
@@ -23,22 +28,13 @@ package object observatory {
 
   def dividePairDouble(pair: (Double, Double)) = pair._1 / pair._2
 
-  val trigonometryPrecisionCoefficient = 8D //should be power of 2
-
-  private val sinDeviations = (0 to (180 * trigonometryPrecisionCoefficient).toInt)
-    .map(degree => math.sin(toRadians(degree / trigonometryPrecisionCoefficient)) - approxSin(degree / trigonometryPrecisionCoefficient))
-    .toArray
-  private val cosDeviations = (0 to (180 * trigonometryPrecisionCoefficient).toInt)
-    .map(degree => math.cos(toRadians(degree / trigonometryPrecisionCoefficient - 90)) - approxCos(degree / trigonometryPrecisionCoefficient - 90))
-    .toArray
-
   def approxSin(x: Double): Double = 4 * x * (180 - x) / (40500 - x * (180 - x))
 
   def approxCos(x: Double): Double = -5 * x * x / (32400 + x * x) + 1
 
   def sin(x: Double): Double = {
     if (x >= 0 && x <= 180) {
-      val res = 4 * x * (180 - x) / (40500 - x * (180 - x)) + sinDeviations((x * trigonometryPrecisionCoefficient).round.toInt)
+      val res = approxSin(x) + SinDeviations((x * TrigonometryPrecisionCoefficient).round.toInt)
       if (res > 1) {
         1
       } else if (res < -1) {
@@ -55,7 +51,7 @@ package object observatory {
 
   def cos(x: Double): Double = {
     if (x >= -90 && x <= 90) {
-      val res = -5 * x * x / (32400 + x * x) + 1 + cosDeviations(((x + 90) * trigonometryPrecisionCoefficient).round.toInt)
+      val res = approxCos(x) + CosDeviations(((x + 90) * TrigonometryPrecisionCoefficient).round.toInt)
       if (res > 1) {
         1
       } else if (res < -1) {
@@ -82,7 +78,7 @@ package object observatory {
     val xAbs = abs(x)
     val ret = (((-0.0187293 * xAbs + 0.0742610) * xAbs - 0.2121144) * xAbs + 1.5707288) * sqrt(1.0 - xAbs)
     if (x < 0) {
-      math.Pi - ret
+      Pi - ret
     } else {
       ret
     }

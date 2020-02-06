@@ -1,6 +1,8 @@
 package observatory
 
-import scala.math.{Pi, abs, sqrt, toRadians}
+import com.sksamuel.scrimage.Pixel
+
+import scala.math.{Pi, abs}
 
 /**
   * Introduced in Week 1. Represents a location on the globe.
@@ -11,7 +13,6 @@ import scala.math.{Pi, abs, sqrt, toRadians}
 
 case class Location(lat: Double, lon: Double) {
 
-
   def distance(that: Location): Double = {
     if (this.equals(that)) {
       0
@@ -21,7 +22,7 @@ case class Location(lat: Double, lon: Double) {
       val acosArg = sin(lat) * sin(that.lat) + cos(lat) * cos(that.lat) * cos(abs(lon - that.lon))
       if (acosArg > 1) {
         acos1 * R
-      } else if (acosArg < - 1) {
+      } else if (acosArg < -1) {
         acosMinus1 * R
       } else {
         acos(acosArg) * R
@@ -72,5 +73,7 @@ case class CellPoint(x: Double, y: Double)
   */
 case class Color(red: Int, green: Int, blue: Int) {
   override def toString: String = s"($red, $green, $blue)"
+
+  def pixel() = Pixel(red, green, blue, 127)
 }
 
