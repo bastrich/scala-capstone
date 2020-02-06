@@ -15,7 +15,8 @@ val capstoneUI =
       },
       libraryDependencies ++= Seq(
         "org.scala-js" %%% "scalajs-dom" % "0.9.7",
-        "com.lihaoyi" %%% "scalatags" % "0.7.0"
+        "com.lihaoyi" %%% "scalatags" % "0.7.0",
+        "com.sksamuel.scrimage" % "scrimage-core_2.12" % "2.1.8"
       ),
       scalaJSUseMainModuleInitializer := true
     )
